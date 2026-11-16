@@ -23,6 +23,17 @@ jobs:
       - name: Extrair projeto
         run: unzip -q GDT-SK.zip -d extraido
 
+      - name: Corrigir erro de Uri
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("extraido/GDT-SK/app/src/main/java/com/gdtsk/recorder/Storage.kt")
+          s = p.read_text()
+          s = s.replace("update(uri, v, null, null)", "update(uri!!, v, null, null)")
+          s = s.replace("delete(uri, null, null)", "delete(uri!!, null, null)")
+          p.write_text(s)
+          PY
+
       - name: Compilar APK
         working-directory: extraido/GDT-SK
         run: |
