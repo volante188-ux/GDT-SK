@@ -1,0 +1,39 @@
+
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Extrair ZIP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          unzip -q GDT-SK.zip -d projeto
+
+      - name: Compilar APK
+        working-directory: projeto/GDT-SK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GDT-SK-apk
+          path: projeto/GDT-SK/app/build/outputs/apk/release/*.apk
